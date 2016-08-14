@@ -108,6 +108,7 @@ class MainWindow(QMainWindow):
                 rules.append((predecessor, successor))
             except:
                 item.setBackground(QBrush(QColor(255, 0, 0, 122)))
+                error = True
         if error:
             return
 
