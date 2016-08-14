@@ -101,8 +101,10 @@ class MainWindow(QMainWindow):
             if predecessor not in ['F', 'Fl', 'Fr', 'f']:
                 item.setBackground(QBrush(QColor(1, 0, 0)))
                 error = True
-            for s in successor.split():
+            for s in successor:
                 s = s.strip()
+                if not s:  # s was whitespace
+                    continue
                 if s not in ['F', 'Fl', 'Fr', 'f', '+', '-']:
                     item.setBackground(QBrush(QColor(1, 0, 0)))
                     error = True
