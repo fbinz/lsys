@@ -69,6 +69,9 @@ class MainWindow(QMainWindow):
         self.rule_list.addItem(QListWidgetItem('F -> F - F + F + F F - F - F + F'))
         self.angle_increment.setValue(90)
 
+        # create status bar
+        self.statusBar()
+
     def add_rule(self):
         item = QListWidgetItem()
         self.rule_list.addItem(item)
@@ -100,15 +103,11 @@ class MainWindow(QMainWindow):
             try:
                 [predecessor, successor] = item.text().split('->')
                 predecessor = predecessor.strip()
-                assert predecessor in ['F', 'f']
-                for s in successor:
-                    s = s.strip()
-                    if not s:  # s was whitespace
-                        continue
-                    assert s in ['F', 'f', '+', '-']
+                assert len(predecessor) == 1, 'For now, only single character predecessor strings are allowed'
                 rules.append((predecessor, successor))
-            except:
+            except Exception as e:
                 item.setBackground(QBrush(QColor(255, 0, 0, 122)))
+                self.statusBar().showMessage(e.args[0], 5000)
                 error = True
         if error:
             return
