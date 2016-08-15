@@ -7,6 +7,7 @@ import vispy.visuals
 import numpy as np
 import math
 
+
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
@@ -16,7 +17,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(splitter)
 
         sub_layout = QFormLayout()
-        sub_layout.setWidget(0, QFormLayout.SpanningRole, QLabel('DOL System Demo'))
+        sub_layout.setWidget(0, QFormLayout.SpanningRole, QLabel('L-System Demo'))
         sub_layout.setLabelAlignment(Qt.AlignRight)
         self.iteration_input = QSpinBox()
         self.iteration_input.setMaximum(20)
@@ -99,12 +100,12 @@ class MainWindow(QMainWindow):
             try:
                 [predecessor, successor] = item.text().split('->')
                 predecessor = predecessor.strip()
-                assert predecessor in ['F', 'Fl', 'Fr', 'f']
+                assert predecessor in ['F', 'f']
                 for s in successor:
                     s = s.strip()
                     if not s:  # s was whitespace
                         continue
-                    assert s in ['F', 'Fl', 'Fr', 'f', '+', '-']
+                    assert s in ['F', 'f', '+', '-']
                 rules.append((predecessor, successor))
             except:
                 item.setBackground(QBrush(QColor(255, 0, 0, 122)))
