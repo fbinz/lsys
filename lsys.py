@@ -47,7 +47,20 @@ class MainWindow(QMainWindow):
         sub_layout.setWidget(5, QFormLayout.SpanningRole, group)
         refresh_button = QPushButton('Refresh')
         refresh_button.clicked.connect(self.refresh_display)
-        sub_layout.setWidget(6, QFormLayout.SpanningRole, refresh_button)
+        group = QGroupBox('Drawing')
+        group_layout = QFormLayout()
+        group_layout.setLabelAlignment(Qt.AlignRight)
+        self.draw_characters = QLineEdit('FG')
+        group_layout.addRow('Draw', self.draw_characters)
+        self.skip_characters = QLineEdit('fg')
+        group_layout.addRow('Skip', self.skip_characters)
+        self.turn_left_characters = QLineEdit('+')
+        group_layout.addRow('Turn Left', self.turn_left_characters)
+        self.turn_right_characters = QLineEdit('-')
+        group_layout.addRow('Turn Right', self.turn_right_characters)
+        group.setLayout(group_layout)
+        sub_layout.setWidget(6, QFormLayout.SpanningRole, group)
+        sub_layout.setWidget(7, QFormLayout.SpanningRole, refresh_button)
 
         dummy = QWidget()
         dummy.setLayout(sub_layout)
@@ -131,19 +144,23 @@ class MainWindow(QMainWindow):
         angle = 0
         p0 = np.array((0, 0))
         pos = []
+        draw_chars = self.draw_characters.text()
+        skip_chars = self.skip_characters.text()
+        left_chars = self.turn_left_characters.text()
+        right_chars = self.turn_right_characters.text()
         for c in drawing:
-            if c in 'ABFGY':
+            if c in draw_chars:
                 p1 = p0 + np.array((math.sin(angle), math.cos(angle)))
                 pos.append(p0)
                 pos.append(p1)
                 p0 = p1
-            if c in 'abfgy':
+            if c in skip_chars:
                 # note: += would modify p0, so the object appended in pos.append(p0) above is modified aswell, which
                 # is not intended!
                 p0 = p0 + np.array((math.sin(angle), math.cos(angle)))
-            elif c == '+':
+            elif c == left_chars:
                 angle += angle_increment
-            elif c == '-':
+            elif c == right_chars:
                 angle -= angle_increment
             elif c == '[':
                 stack.append((angle, p0))
