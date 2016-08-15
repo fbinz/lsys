@@ -131,12 +131,12 @@ class MainWindow(QMainWindow):
         p0 = np.array((0, 0))
         pos = []
         for c in drawing:
-            if c == 'F':
+            if c in 'ABFG':
                 p1 = p0 + np.array((math.sin(angle), math.cos(angle)))
                 pos.append(p0)
                 pos.append(p1)
                 p0 = p1
-            if c == 'f':
+            if c in 'abfg':
                 # note: += would modify p0, so the object appended in pos.append(p0) above is modified aswell, which
                 # is not intended!
                 p0 = p0 + np.array((math.sin(angle), math.cos(angle)))
@@ -147,6 +147,8 @@ class MainWindow(QMainWindow):
         if not pos:
             pos = np.array([(0, 0), (0, 0)])
         pos = np.array(pos)
+
+        self.statusBar().showMessage('Finished drawing {} vertices.'.format(len(pos)), 5000)
         self.line.set_data(pos=pos)
 
 
