@@ -96,18 +96,19 @@ class MainWindow(QMainWindow):
         error = False
         for row in range(self.rule_list.count()):
             item = self.rule_list.item(row)
-            [predecessor, successor] = item.text().split('->')
-            predecessor = predecessor.strip()
-            if predecessor not in ['F', 'Fl', 'Fr', 'f']:
-                item.setBackground(QBrush(QColor(1, 0, 0)))
-                error = True
-            for s in successor.split():
-                s = s.strip()
-                if s not in ['F', 'Fl', 'Fr', 'f', '+', '-']:
-                    item.setBackground(QBrush(QColor(1, 0, 0)))
-                    error = True
-            if not error:
+            try:
+                [predecessor, successor] = item.text().split('->')
+                predecessor = predecessor.strip()
+                assert predecessor in ['F', 'Fl', 'Fr', 'f']
+                for s in successor:
+                    s = s.strip()
+                    if not s:  # s was whitespace
+                        continue
+                    assert s in ['F', 'Fl', 'Fr', 'f', '+', '-']
                 rules.append((predecessor, successor))
+            except:
+                item.setBackground(QBrush(QColor(255, 0, 0, 122)))
+                error = True
         if error:
             return
 
