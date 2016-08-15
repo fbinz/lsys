@@ -126,17 +126,18 @@ class MainWindow(QMainWindow):
             drawing = ''.join(result)
 
         # draw turtle graphics
+        stack = []
         angle_increment = math.radians(int(self.angle_increment.text()))
         angle = 0
         p0 = np.array((0, 0))
         pos = []
         for c in drawing:
-            if c in 'ABFGXY':
+            if c in 'ABFGY':
                 p1 = p0 + np.array((math.sin(angle), math.cos(angle)))
                 pos.append(p0)
                 pos.append(p1)
                 p0 = p1
-            if c in 'abfgxy':
+            if c in 'abfgy':
                 # note: += would modify p0, so the object appended in pos.append(p0) above is modified aswell, which
                 # is not intended!
                 p0 = p0 + np.array((math.sin(angle), math.cos(angle)))
@@ -144,6 +145,10 @@ class MainWindow(QMainWindow):
                 angle += angle_increment
             elif c == '-':
                 angle -= angle_increment
+            elif c == '[':
+                stack.append((angle, p0))
+            elif c == ']':
+                angle, p0 = stack.pop()
         if not pos:
             pos = np.array([(0, 0), (0, 0)])
         pos = np.array(pos)
