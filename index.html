@@ -17,13 +17,13 @@
     /* the two knobs of neumorphism + light direction (unit vector toward light) */
     --lx: -0.62;          /* light-source x, -1 (left) … 1 (right)  */
     --ly: -0.72;          /* light-source y, -1 (top)  … 1 (bottom) */
-    --d: 15;              /* shadow distance (px)  */
-    --b: 30;              /* shadow blur (px)      */
-    --c: 13;              /* contrast (%) — depth of the shadows  */
+    --d: 32;              /* shadow distance (px)  */
+    --b: 55;              /* shadow blur (px)      */
+    --c: 32;              /* contrast (%) — depth of the shadows  */
 
     /* shadow colours derived from the surface itself */
-    --dark:  color-mix(in oklab, var(--bg), #2c2114 calc(var(--c) * 1%));
-    --light: color-mix(in oklab, var(--bg), #fffdf6 calc(var(--c) * 1.7%));
+    --dark:  color-mix(in oklab, var(--bg), #2c2114 calc(var(--c) * 1.4%));
+    --light: color-mix(in oklab, var(--bg), #fffdf6 calc(var(--c) * 2.2%));
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -123,21 +123,21 @@
     background:var(--bg); cursor:pointer; }
   input[type=range]::-webkit-slider-runnable-track{ height:14px; border-radius:20px; background:transparent;
     box-shadow:
-      inset calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 9px var(--dark),
-      inset calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 9px var(--light); }
+      inset calc(var(--lx)*9px*1) calc(var(--ly)*9px*1) 14px var(--dark),
+      inset calc(var(--lx)*9px*-1) calc(var(--ly)*9px*-1) 14px var(--light); }
   input[type=range]::-moz-range-track{ height:14px; border-radius:20px;
     box-shadow:
-      inset calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 9px var(--dark),
-      inset calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 9px var(--light); }
+      inset calc(var(--lx)*9px*1) calc(var(--ly)*9px*1) 14px var(--dark),
+      inset calc(var(--lx)*9px*-1) calc(var(--ly)*9px*-1) 14px var(--light); }
   input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:26px; height:26px;
     margin-top:-6px; border-radius:50%; background:var(--bg);
     box-shadow:
-      calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 7px var(--dark),
-      calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 7px var(--light); }
+      calc(var(--lx)*9px*-1) calc(var(--ly)*9px*-1) 12px var(--dark),
+      calc(var(--lx)*9px*1) calc(var(--ly)*9px*1) 12px var(--light); }
   input[type=range]::-moz-range-thumb{ width:26px; height:26px; border:0; border-radius:50%; background:var(--bg);
     box-shadow:
-      calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 7px var(--dark),
-      calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 7px var(--light); }
+      calc(var(--lx)*9px*-1) calc(var(--ly)*9px*-1) 12px var(--dark),
+      calc(var(--lx)*9px*1) calc(var(--ly)*9px*1) 12px var(--light); }
 
   /* ---- status / permission ---- */
   .status{ display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-top:22px;
@@ -188,16 +188,16 @@
   <div class="panel raised">
     <h2>the two real knobs (+ depth)</h2>
     <div class="ctrl">
-      <label>distance <b id="dOut">15 px</b></label>
-      <input type="range" id="dIn" min="4" max="34" value="15">
+      <label>distance <b id="dOut">32 px</b></label>
+      <input type="range" id="dIn" min="4" max="60" value="32">
     </div>
     <div class="ctrl">
-      <label>blur / softness <b id="bOut">30 px</b></label>
-      <input type="range" id="bIn" min="2" max="60" value="30">
+      <label>blur / softness <b id="bOut">55 px</b></label>
+      <input type="range" id="bIn" min="2" max="100" value="55">
     </div>
     <div class="ctrl">
-      <label>contrast / depth <b id="cOut">13 %</b></label>
-      <input type="range" id="cIn" min="3" max="30" value="13">
+      <label>contrast / depth <b id="cOut">32 %</b></label>
+      <input type="range" id="cIn" min="3" max="50" value="32">
     </div>
 
     <div class="status">
