@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Soft Light — orientation-driven neumorphism</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* clay / putty surface — warm, not the usual cold grey */
+    --bg: #e2d7c5;
+    --ink: #5a4f3f;
+    --ink-soft: #94886f;
+
+    /* the two knobs of neumorphism + light direction (unit vector toward light) */
+    --lx: -0.62;          /* light-source x, -1 (left) … 1 (right)  */
+    --ly: -0.72;          /* light-source y, -1 (top)  … 1 (bottom) */
+    --d: 15;              /* shadow distance (px)  */
+    --b: 30;              /* shadow blur (px)      */
+    --c: 13;              /* contrast (%) — depth of the shadows  */
+
+    /* shadow colours derived from the surface itself */
+    --dark:  color-mix(in oklab, var(--bg), #2c2114 calc(var(--c) * 1%));
+    --light: color-mix(in oklab, var(--bg), #fffdf6 calc(var(--c) * 1.7%));
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    font-family:"Fraunces", Georgia, serif;
+    color:var(--ink);
+    background:var(--bg);
+    /* very soft vignette so the surface reads as a lit material */
+    background-image:
+      radial-gradient(120% 90% at calc(50% + var(--lx)*22%) calc(50% + var(--ly)*22%),
+        color-mix(in oklab, var(--bg), #fffdf6 6%), var(--bg) 62%);
+    overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    min-height:100%;
+  }
+
+  .wrap{
+    max-width:760px; margin:0 auto; padding:clamp(22px,5vw,48px) clamp(18px,5vw,40px) 80px;
+    position:relative; z-index:2;
+  }
+
+  header{ margin-bottom:clamp(26px,6vw,46px); }
+  h1{
+    font-weight:300; font-size:clamp(30px,8vw,52px); letter-spacing:-.02em; line-height:1;
+    font-optical-sizing:auto;
+  }
+  h1 em{ font-style:italic; color:var(--ink-soft); }
+  .lede{
+    margin-top:12px; max-width:46ch; font-size:clamp(14px,3.4vw,16.5px); font-weight:400;
+    line-height:1.55; color:var(--ink-soft);
+  }
+
+  /* ---- the neumorphic shadow recipes, all driven by the vars above ---- */
+  .raised{
+    box-shadow:
+      calc(var(--lx) * var(--d) * -1px) calc(var(--ly) * var(--d) * -1px) calc(var(--b)*1px) var(--dark),
+      calc(var(--lx) * var(--d) *  1px) calc(var(--ly) * var(--d) *  1px) calc(var(--b)*1px) var(--light);
+    transition: box-shadow .05s linear, transform .12s ease;
+  }
+  .inset{
+    box-shadow:
+      inset calc(var(--lx) * var(--d) *  1px) calc(var(--ly) * var(--d) *  1px) calc(var(--b)*1px) var(--dark),
+      inset calc(var(--lx) * var(--d) * -1px) calc(var(--ly) * var(--d) * -1px) calc(var(--b)*1px) var(--light);
+  }
+  /* press feedback: a raised thing pushes in toward the same light */
+  .pressable:active{
+    box-shadow:
+      inset calc(var(--lx) * var(--d) *  .7px) calc(var(--ly) * var(--d) *  .7px) calc(var(--b)*.7px) var(--dark),
+      inset calc(var(--lx) * var(--d) * -.7px) calc(var(--ly) * var(--d) * -.7px) calc(var(--b)*.7px) var(--light);
+    transform: scale(.985);
+  }
+
+  /* ---- hero ---- */
+  .stage{ display:flex; flex-direction:column; align-items:center; gap:clamp(26px,7vw,44px); }
+
+  .orb{
+    width:clamp(190px,52vw,260px); aspect-ratio:1; border-radius:50%;
+    background:
+      radial-gradient(circle at calc(50% + var(--lx)*32%) calc(50% + var(--ly)*32%),
+        var(--light), var(--bg) 58%, color-mix(in oklab,var(--bg),#2c2114 6%) 100%);
+    display:grid; place-items:center; position:relative; cursor:pointer;
+  }
+  .orb .dial{
+    width:62%; aspect-ratio:1; border-radius:50%; background:var(--bg);
+    display:grid; place-items:center; text-align:center;
+  }
+  .orb .val{ font-size:clamp(26px,7vw,40px); font-weight:400; letter-spacing:-.02em; }
+  .orb .cap{ font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--ink-soft); margin-top:2px; }
+
+  /* ---- row of sample widgets ---- */
+  .row{ display:flex; flex-wrap:wrap; gap:clamp(14px,4vw,22px); justify-content:center; align-items:center; }
+  .pad{ width:60px; height:60px; border-radius:18px; background:var(--bg); display:grid; place-items:center;
+    color:var(--ink-soft); font-size:22px; cursor:pointer; }
+  .pill{ padding:14px 26px; border-radius:40px; background:var(--bg); cursor:pointer; font-size:15px;
+    font-weight:500; color:var(--ink); }
+
+  /* neumorphic toggle */
+  .toggle{ width:78px; height:42px; border-radius:40px; background:var(--bg); position:relative; cursor:pointer; }
+  .toggle .knob{ position:absolute; top:6px; left:6px; width:30px; height:30px; border-radius:50%;
+    background:var(--bg); transition:left .26s cubic-bezier(.4,1.3,.5,1); }
+  .toggle.on .knob{ left:42px; }
+  .toggle.on{ background:color-mix(in oklab, var(--bg), #c2724f 16%); }
+
+  /* ---- controls ---- */
+  .panel{ margin-top:clamp(34px,8vw,56px); padding:clamp(20px,5vw,30px); border-radius:30px; background:var(--bg); }
+  .panel h2{ font-weight:400; font-style:italic; font-size:18px; color:var(--ink-soft); margin-bottom:20px; }
+  .ctrl{ margin-bottom:22px; }
+  .ctrl:last-child{ margin-bottom:0; }
+  .ctrl label{ display:flex; justify-content:space-between; font-family:"IBM Plex Mono",monospace;
+    font-size:12px; letter-spacing:.04em; color:var(--ink); margin-bottom:12px; }
+  .ctrl label b{ color:var(--ink-soft); font-weight:400; }
+
+  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:14px; border-radius:20px;
+    background:var(--bg); cursor:pointer; }
+  input[type=range]::-webkit-slider-runnable-track{ height:14px; border-radius:20px; background:transparent;
+    box-shadow:
+      inset calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 9px var(--dark),
+      inset calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 9px var(--light); }
+  input[type=range]::-moz-range-track{ height:14px; border-radius:20px;
+    box-shadow:
+      inset calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 9px var(--dark),
+      inset calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 9px var(--light); }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:26px; height:26px;
+    margin-top:-6px; border-radius:50%; background:var(--bg);
+    box-shadow:
+      calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 7px var(--dark),
+      calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 7px var(--light); }
+  input[type=range]::-moz-range-thumb{ width:26px; height:26px; border:0; border-radius:50%; background:var(--bg);
+    box-shadow:
+      calc(var(--lx)*5px*-1) calc(var(--ly)*5px*-1) 7px var(--dark),
+      calc(var(--lx)*5px*1) calc(var(--ly)*5px*1) 7px var(--light); }
+
+  /* ---- status / permission ---- */
+  .status{ display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-top:22px;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft); }
+  .status .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-soft); display:inline-block;
+    margin-right:7px; vertical-align:middle; }
+  .status .dot.live{ background:#7a9a5e; box-shadow:0 0 0 4px color-mix(in oklab,var(--bg),#7a9a5e 18%); }
+  #enable{ font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.06em; color:var(--ink);
+    border:0; background:var(--bg); padding:11px 18px; border-radius:30px; cursor:pointer; }
+
+  /* the little "sun" showing where the light is */
+  #sun{ position:fixed; width:18px; height:18px; border-radius:50%; pointer-events:none; z-index:5;
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    background:radial-gradient(circle, #fff8e6, #f3c98a 55%, transparent 72%);
+    filter:blur(.3px); opacity:.0; transition:opacity .4s; }
+  #sun.show{ opacity:.9; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+<div id="sun"></div>
+<div class="wrap">
+  <header>
+    <h1>Soft Light <em>·</em> tilt to move the sun</h1>
+    <p class="lede">Neumorphism fakes a fixed light source. Here it isn't fixed — every shadow is recomputed from
+      your device's orientation. On a desktop, move your mouse; the cursor becomes the light.</p>
+  </header>
+
+  <div class="stage">
+    <div class="orb raised pressable" id="orb" title="tap me">
+      <div class="dial inset">
+        <div>
+          <div class="val" id="orbVal">68°</div>
+          <div class="cap">azimuth</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="pad raised pressable">✱</div>
+      <div class="pill raised pressable">Press me</div>
+      <div class="toggle raised on" id="tog"><div class="knob raised"></div></div>
+      <div class="pad raised pressable">◐</div>
+    </div>
+  </div>
+
+  <div class="panel raised">
+    <h2>the two real knobs (+ depth)</h2>
+    <div class="ctrl">
+      <label>distance <b id="dOut">15 px</b></label>
+      <input type="range" id="dIn" min="4" max="34" value="15">
+    </div>
+    <div class="ctrl">
+      <label>blur / softness <b id="bOut">30 px</b></label>
+      <input type="range" id="bIn" min="2" max="60" value="30">
+    </div>
+    <div class="ctrl">
+      <label>contrast / depth <b id="cOut">13 %</b></label>
+      <input type="range" id="cIn" min="3" max="30" value="13">
+    </div>
+
+    <div class="status">
+      <span><span class="dot" id="statDot"></span><span id="statTxt">mouse light</span></span>
+      <span id="vec">lx -0.62 · ly -0.72</span>
+      <button id="enable">Enable tilt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const $ = s => document.querySelector(s);
+
+  // current (rendered) and target light direction — we lerp between them for smooth motion
+  let lx = -0.62, ly = -0.72, tlx = lx, tly = ly;
+  let source = 'mouse';
+  let baseBeta = null, baseGamma = null;   // calibration captured on first tilt reading
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  function render(){
+    lx += (tlx - lx) * 0.12;
+    ly += (tly - ly) * 0.12;
+    root.style.setProperty('--lx', lx.toFixed(3));
+    root.style.setProperty('--ly', ly.toFixed(3));
+
+    const sun = $('#sun');
+    sun.style.left = `calc(50% + ${lx * 40}vmin)`;
+    sun.style.top  = `calc(50% + ${ly * 40}vmin)`;
+
+    // azimuth read-out on the orb, just for fun
+    const deg = Math.round((Math.atan2(ly, lx) * 180 / Math.PI + 360)) % 360;
+    $('#orbVal').textContent = deg + '°';
+    $('#vec').textContent = `lx ${lx.toFixed(2)} · ly ${ly.toFixed(2)}`;
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  // ---- desktop: the cursor is the light ----
+  window.addEventListener('pointermove', e => {
+    if (source === 'tilt' && e.pointerType === 'touch') return;
+    source = e.pointerType === 'touch' ? source : 'mouse';
+    if (source !== 'mouse') return;
+    tlx = clamp((e.clientX - innerWidth / 2) / (innerWidth / 2), -1, 1);
+    tly = clamp((e.clientY - innerHeight / 2) / (innerHeight / 2), -1, 1);
+    $('#sun').classList.add('show');
+  });
+
+  // ---- mobile: orientation drives the light ----
+  function onTilt(e){
+    if (e.beta == null || e.gamma == null) return;
+    if (baseBeta === null){ baseBeta = e.beta; baseGamma = e.gamma; }  // wherever you hold it = neutral
+    source = 'tilt';
+    setStatus(true, 'tilt light');
+    $('#sun').classList.add('show');
+    // tilt away from neutral by ±~35° = full travel of the light
+    tlx = clamp((e.gamma - baseGamma) / 35, -1, 1);
+    tly = clamp((e.beta  - baseBeta)  / 35, -1, 1);
+  }
+
+  function setStatus(live, txt){
+    $('#statDot').classList.toggle('live', live);
+    $('#statTxt').textContent = txt;
+  }
+
+  $('#enable').addEventListener('click', async () => {
+    baseBeta = baseGamma = null;        // recalibrate to current pose
+    const D = window.DeviceOrientationEvent;
+    if (D && typeof D.requestPermission === 'function'){   // iOS 13+
+      try{
+        const res = await D.requestPermission();
+        if (res === 'granted'){ window.addEventListener('deviceorientation', onTilt); setStatus(false,'tilt — move it'); }
+        else setStatus(false, 'permission denied');
+      }catch{ setStatus(false, 'no sensor'); }
+    } else if (D){                                          // Android / others
+      window.addEventListener('deviceorientation', onTilt);
+      setStatus(false, 'tilt — move it');
+    } else {
+      setStatus(false, 'no sensor here');
+    }
+    $('#enable').textContent = 'Recenter';
+  });
+
+  // ---- live control knobs ----
+  const bind = (id, varName, out, unit) => {
+    const el = $(id);
+    const upd = () => { root.style.setProperty(varName, el.value); $(out).textContent = el.value + ' ' + unit; };
+    el.addEventListener('input', upd); upd();
+  };
+  bind('#dIn', '--d', '#dOut', 'px');
+  bind('#bIn', '--b', '#bOut', 'px');
+  bind('#cIn', '--c', '#cOut', '%');
+
+  // ---- toy interactions ----
+  $('#tog').addEventListener('click', () => $('#tog').classList.toggle('on'));
+})();
+</script>
+</body>
+</html>
